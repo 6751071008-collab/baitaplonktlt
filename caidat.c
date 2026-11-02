@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <string.h> 
 #include "header.h"
-
+#if defined(_WIN32) || defined(_WIN64)
+    #define strcasestr strstr
+#endif
 //xoa bo nho dem tu ban phim
 void clearInputBuffer() {
     int c;
