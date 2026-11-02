@@ -3,8 +3,7 @@
 // ==========================================================
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-//#include "../include/header.h" 
+#include <string.h> 
 #include "header.h"
 
 //xoa bo nho dem tu ban phim
