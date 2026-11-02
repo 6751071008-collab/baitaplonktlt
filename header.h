@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef STUDENT_H
-#define STUDENT_H
+#if defined(_WIN32) || defined(_WIN64)
+    #define strcasestr strstr
+#endif
 // struct luu tru sinh vien
 typedef struct SinhVien {
     char maSV[11];       
@@ -38,4 +39,4 @@ void suaThongTinSinhVien(SinhVien ds[], int n);
 void xoaSinhVien(DanhSachSinhVien *list);
 void sapXepGPAGiamDan(DanhSachSinhVien *list);
 void displayMenu();
-#endif
+
