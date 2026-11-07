@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Sinh viên & Điểm số</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-top: 6px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f5f9;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .flex-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .box-calc {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <div id="auth-section" class="card">
+        <h2>HỆ THỐNG QUẢN LÝ SINH VIÊN & ĐIỂM</h2>
+        <div id="login-form">
+            <h3>Đăng Nhập Hệ Thống</h3>
+            <div class="form-group">
+                <label>Tên đăng nhập:</label>
+                <input type="text" id="login-user" placeholder="Nhập username (admin hoặc mã sv)...">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu:</label>
+                <input type="password" id="login-pass" placeholder="Nhập mật khẩu...">
+            </div>
+            <button id="btn-login">Đăng Nhập</button>
+            <button class="btn-secondary" id="btn-goto-reg">Chưa có tài khoản? Đăng ký ngay</button>
+        </div>
+
+        <div id="register-form" class="hidden">
+            <h3>Đăng Ký Tài Khoản Mới</h3>
+            <div class="form-group">
+                <label>Loại tài khoản:</label>
+                <select id="reg-role">
+                    <option value="student">Sinh viên</option>
+                    <option value="admin">Giáo viên (Admin)</option>
+                </select>
+            </div>
+            <div class="form-group" id="group-masv">
+                <label>Mã Sinh Viên:</label>
+                <input type="text" id="reg-masv" placeholder="Nhập mã sinh viên có sẵn...">
+            </div>
+            <div class="form-group">
+                <label>Tên đăng nhập:</label>
+                <input type="text" id="reg-user" placeholder="Chọn tên đăng nhập...">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu:</label>
+                <input type="password" id="reg-pass" placeholder="Tạo mật khẩu...">
+            </div>
+            <button id="btn-register">Đăng Ký</button>
+            <button class="btn-secondary" id="btn-goto-login">Đã có tài khoản? Đăng nhập</button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH ADMIN (GIÁO VIÊN) -->
+    <div id="admin-dashboard" class="card hidden">
+        <h2>PANEL QUẢN LÝ DÀNH CHO GIÁO VIÊN (ADMIN)</h2>
+        <div class="flex-buttons" style="margin-bottom: 16px;">
+            <button id="btn-add-student">+ Thêm Sinh Viên</button>
+            <button class="btn-secondary" id="btn-sort-gpa">Sắp Xếp GPA Giảm Dần</button>
+            <button class="btn-secondary" id="btn-admin-logout" style="background-color: #dc2626;">Đăng Xuất</button>
+        </div>
+        
+        <div class="form-group">
+            <input type="text" id="search-keyword" placeholder="🔍 Tìm kiếm sinh viên theo tên hoặc mã...">
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã SV</th>
+                        <th>Họ và Tên</th>
+                        <th>Điểm GK</th>
+                        <th>Điểm CK</th>
+                        <th>GPA</th>
+                        <th>Điểm Chữ</th>
+                        <th>Xếp Loại</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="student-table-body">
+                    <!-- Dữ liệu sinh viên đổ vào đây -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH SINH VIÊN -->
+    <div id="student-dashboard" class="card hidden">
+        <h2>PORTAL TRA CỨU ĐIỂM SINH VIÊN</h2>
+        <div id="student-info-box" style="margin-bottom: 20px; line-height: 1.6;">
+            <!-- Thông tin cá nhân đổ vào đây -->
+        </div>
+
+        <!-- Công cụ tự tính điểm nháp thử cho sinh viên -->
+        <div class="box-calc">
+            <h3>Công Cụ Tự Tính Điểm Nháp Thử</h3>
+            <div class="form-group">
+                <label>Điểm Giữa Kỳ dự kiến (0-10):</label>
+                <input type="number" id="calc-gk" min="0" max="10" step="0.1" placeholder="Nhập điểm GK...">
+            </div>
+            <div class="form-group">
+                <label>Điểm Cuối Kỳ dự kiến (0-10):</label>
+                <input type="number" id="calc-ck" min="0" max="10" step="0.1" placeholder="Nhập điểm CK...">
+            </div>
+            <button id="btn-calc">Tính Điểm Dự Kiến</button>
+            <div id="calc-result" style="margin-top: 10px; font-weight: bold;"></div>
+        </div>
+
+        <button id="btn-student-logout" class="btn-secondary" style="background-color: #dc2626; margin-top: 20px;">Đăng Xuất</button>
+    </div>
+</div>
+
+<script>
+    let students = JSON.parse(localStorage.getItem('web_students')) || [
+        { maSV: "SV01", hoTen: "Nguyễn Văn A", diemGK: 8.0, diemCK: 9.0, gpa: 8.6, diemChu: "A", xepLoai: "Xuat sac" },
+        { maSV: "SV02", hoTen: "Trần Thị B", diemGK: 6.5, diemCK: 7.0, gpa: 6.8, diemChu: "C+", xepLoai: "Kha" }
+    ];
+
+    let accounts = JSON.parse(localStorage.getItem('web_accounts')) || [
+        { username: "admin", password: "123", role: "admin", maSV: "" },
+        { username: "SV01", password: "123", role: "student", maSV: "SV01" }
+    ];
+
+    let currentUser = null;
+
+    function saveData() {
+        localStorage.setItem('web_students', JSON.stringify(students));
+        localStorage.setItem('web_accounts', JSON.stringify(accounts));
+    }
+
+    function switchTab(tab) {
+        if (tab === 'register') {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        } else {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        }
+    }
+
+    function toggleRegFields() {
+        const role = document.getElementById('reg-role').value;
+        const groupMaSV = document.getElementById('group-masv');
+        if (role === 'admin') {
+            groupMaSV.classList.add('hidden');
+        } else {
+            groupMaSV.classList.remove('hidden');
+        }
+    }
+
+    function calculateGPA(sv) {
+        sv.gpa = parseFloat((sv.diemGK * 0.4 + sv.diemCK * 0.6).toFixed(2));
+        if (sv.gpa >= 8.5) { sv.xepLoai = "Xuat sac"; sv.diemChu = "A"; }
+        else if (sv.gpa >= 8.0) { sv.xepLoai = "Gioi"; sv.diemChu = "B+"; }
+        else if (sv.gpa >= 7.0) { sv.xepLoai = "Gioi"; sv.diemChu = "B"; }
+        else if (sv.gpa >= 6.5) { sv.xepLoai = "Kha"; sv.diemChu = "C+"; }
+        else if (sv.gpa >= 5.5) { sv.xepLoai = "Kha"; sv.diemChu = "C"; }
+        else if (sv.gpa >= 5.0) { sv.xepLoai = "Trung binh"; sv.diemChu = "D+"; }
+        else if (sv.gpa >= 4.0) { sv.xepLoai = "Trung binh"; sv.diemChu = "D"; }
+        else { sv.xepLoai = "Yeu"; sv.diemChu = "F"; }
+    }
+
+    function handleLogin() {
+        const user = document.getElementById('login-user').value.trim();
+        const pass = document.getElementById('login-pass').value.trim();
+
+        const acc = accounts.find(a => a.username === user && a.password === pass);
+        if (!acc) {
+            alert('Sai tên đăng nhập hoặc mật khẩu!');
+            return;
+        }
+
+        currentUser = acc;
+        document.getElementById('auth-section').classList.add('hidden');
+
+        if (acc.role === 'admin') {
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            renderStudentTable();
+        } else {
+            document.getElementById('student-dashboard').classList.remove('hidden');
+            renderStudentPortal(acc.maSV);
+        }
+    }
+
+    function handleRegister() {
+        const role = document.getElementById('reg-role').value;
+        const user = document.getElementById('reg-user').value.trim();
+        const pass = document.getElementById('reg-pass').value.trim();
+        const maSV = document.getElementById('reg-masv').value.trim();
+
+        if (!user || !pass) {
+            alert('Vui lòng nhập đầy đủ thông tin tài khoản!');
+            return;
+        }
+
+        if (accounts.some(a => a.username === user)) {
+            alert('Tên đăng nhập đã tồn tại!');
+            return;
+        }
+
+        if (role === 'student') {
+            if (!students.some(s => s.maSV === maSV)) {
+                alert('Mã SV không tồn tại trong hệ thống của nhà trường!');
+                return;
+            }
+            if (accounts.some(a => a.maSV === maSV)) {
+                alert('Mã SV này đã được đăng ký tài khoản trước đó!');
+                return;
+            }
+        }
+
+        accounts.push({ username: user, password: pass, role: role, maSV: role === 'student' ? maSV : '' });
+        saveData();
+        alert('Đăng ký tài khoản thành công!');
+        switchTab('login');
+    }
+
+    function handleLogout() {
+        currentUser = null;
+        document.getElementById('admin-dashboard').classList.add('hidden');
+        document.getElementById('student-dashboard').classList.add('hidden');
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('login-user').value = '';
+        document.getElementById('login-pass').value = '';
+    }
+
+    function renderStudentTable(dataToRender = students) {
+        const tbody = document.getElementById('student-table-body');
+        tbody.innerHTML = '';
+        if (dataToRender.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9">Danh sách trống!</td></tr>`;
+            return;
+        }
+
+        dataToRender.forEach((sv, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${sv.maSV}</td>
+                    <td>${sv.hoTen}</td>
+                    <td>${sv.diemGK}</td>
+                    <td>${sv.diemCK}</td>
+                    <td><b>${sv.gpa}</b></td>
+                    <td>${sv.diemChu}</td>
+                    <td>${sv.xepLoai}</td>
+                    <td>
+                        <button onclick="deleteStudent('${sv.maSV}')" style="background-color: #dc2626; padding: 4px 8px; font-size: 12px; width: auto;">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function showAddStudentModal() {
+        const maSV = prompt("Nhập Mã SV mới:");
+        if (!maSV) return;
+        if (students.some(s => s.maSV === maSV)) {
+            alert('Mã SV đã tồn tại!');
+            return;
+        }
+        const hoTen = prompt("Nhập Họ và Tên:");
+        const diemGK = parseFloat(prompt("Nhập Điểm Giữa Kỳ (0-10):"));
+        const diemCK = parseFloat(prompt("Nhập Điểm Cuối Kỳ (0-10):"));
+
+        if (isNaN(diemGK) || isNaN(diemCK) || diemGK < 0 || diemGK > 10 || diemCK < 0 || diemCK > 10) {
+            alert('Điểm không hợp lệ!');
+            return;
+        }
+
+        let newSv = { maSV, hoTen, diemGK, diemCK };
+        calculateGPA(newSv);
+        students.push(newSv);
+        saveData();
+        renderStudentTable();
+        alert('Thêm sinh viên thành công!');
+    }
+
+    function deleteStudent(maSV) {
+        if (confirm(`Bạn có chắc muốn xóa sinh viên ${maSV}?`)) {
+            students = students.filter(s => s.maSV !== maSV);
+            saveData();
+            renderStudentTable();
+        }
+    }
+
+    function sortStudentsByGPA() {
+        students.sort((a, b) => b.gpa - a.gpa);
+        renderStudentTable();
+    }
+
+    function filterStudents() {
+        const keyword = document.getElementById('search-keyword').value.toLowerCase();
+        const filtered = students.filter(s => s.hoTen.toLowerCase().includes(keyword) || s.maSV.toLowerCase().includes(keyword));
+        renderStudentTable(filtered);
+    }
+
+    function renderStudentPortal(maSV) {
+        const box = document.getElementById('student-info-box');
+        const sv = students.find(s => s.maSV === maSV);
+        if (!sv) {
+            box.innerHTML = `<p style="color: red;">Không tìm thấy thông tin điểm của bạn trong hệ thống!</p>`;
+            return;
+        }
+        box.innerHTML = `
+            <p><strong>Mã SV:</strong> ${sv.maSV}</p>
+            <p><strong>Họ và Tên:</strong> ${sv.hoTen}</p>
+            <p><strong>Điểm Giữa Kỳ:</strong> ${sv.diemGK}</p>
+            <p><strong>Điểm Cuối Kỳ:</strong> ${sv.diemCK}</p>
+            <p><strong>GPA Tổng Kết:</strong> <span style="color: var(--primary-color); font-size: 18px;">${sv.gpa}</span></p>
+            <p><strong>Điểm Chữ:</strong> ${sv.diemChu}</p>
+            <p><strong>Xếp Loại:</strong> ${sv.xepLoai}</p>
+        `;
+    }
+
+    function tinhDiemNhapThu() {
+        const gk = parseFloat(document.getElementById('calc-gk').value);
+        const ck = parseFloat(document.getElementById('calc-ck').value);
+        const resultBox = document.getElementById('calc-result');
+
+        if (isNaN(gk) || isNaN(ck) || gk < 0 || gk > 10 || ck < 0 || ck > 10) {
+            resultBox.innerHTML = `<span style="color: red;">Vui lòng nhập điểm GK và CK hợp lệ từ 0 đến 10!</span>`;
+            return;
+        }
+
+        let tempSv = { diemGK: gk, diemCK: ck };
+        calculateGPA(tempSv);
+
+        resultBox.innerHTML = `
+            <div style="color: #16a34a; margin-top: 5px;">
+                - GPA dự kiến: ${tempSv.gpa}<br>
+                - Điểm chữ dự kiến: ${tempSv.diemChu}<br>
+                - Xếp loại dự kiến: ${tempSv.xepLoai}
+            </div>
+        `;
+    }
+
+    // Gắn sự kiện lắng nghe an toàn (tránh lỗi xung đột onclick trực tiếp)
+    document.getElementById('btn-login').addEventListener('click', handleLogin);
+    document.getElementById('btn-register').addEventListener('click', handleRegister);
+    document.getElementById('btn-goto-reg').addEventListener('click', () => switchTab('register'));
+    document.getElementById('btn-goto-login').addEventListener('click', () => switchTab('login'));
+    document.getElementById('reg-role').addEventListener('change', toggleRegFields);
+    document.getElementById('btn-add-student').addEventListener('click', showAddStudentModal);
+    document.getElementById('btn-sort-gpa').addEventListener('click', sortStudentsByGPA);
+    document.getElementById('search-keyword').addEventListener('input', filterStudents);
+    document.getElementById('btn-admin-logout').addEventListener('click
